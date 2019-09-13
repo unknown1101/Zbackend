@@ -106,7 +106,7 @@ const express = require('express');
 var app = express();
 var upload = require('express-fileupload');
 const http = require('http');
-http.Server(app).listen(80); // make server listen on port 80
+http.Server(app).listen(process.env.PORT ||80); // make server listen on port 80
 
 app.use(upload()); // configure middleware
 
