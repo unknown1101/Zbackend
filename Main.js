@@ -95,31 +95,46 @@
 //
 //
 // })
+/*
+  Aman Kharbanda
+  Subscribe my channel for more videos
+  https://goo.gl/H91NRo
+  Thanks!
+*/
 
-var http = require('http');
-var formidable = require('formidable');
-var fs = require('fs');
+const express = require('express');
+var app = express();
+var upload = require('express-fileupload');
+const http = require('http');
+http.Server(app).listen(80); // make server listen on port 80
 
-http.createServer(function (req, res) {
-  if (req.url == '/fileupload') {
-    var form = new formidable.IncomingForm();
-    form.parse(req, function (err, fields, files) {
-      var oldpath = files.filetoupload.path;
-      var newpath = __dirname + '/images'+files.filetoupload.name;
-      fs.rename(oldpath, newpath, function (err) {
-        if (err) throw err;
-        res.write('File uploaded and moved!');
-        res.end();
-      });
- });
-  } else {
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    res.write('<form action="fileupload" method="post" enctype="multipart/form-data">');
-    res.write('<input type="file" name="filetoupload"><br>');
-    res.write('<input type="submit">');
-    res.write('</form>');
-    return res.end();
+app.use(upload()); // configure middleware
+
+console.log("Server Started at port 80");
+
+app.get('/',function(req,res){
+  res.sendFile(__dirname+'/index.html');
+})
+app.post('/upload',function(req,res){
+  console.log(req.files);
+  if(req.files.upfile){
+    var file = req.files.upfile,
+      name = file.name,
+      type = file.mimetype;
+    var uploadpath = __dirname + '/uploads/' + name;
+    file.mv(uploadpath,function(err){
+      if(err){
+        console.log("File Upload Failed",name,err);
+        res.send("Error Occured!")
+      }
+      else {
+        console.log("File Uploaded",name);
+        res.send('Done! Uploading files')
+      }
+    });
   }
-}).listen(8080);
-
-
+  else {
+    res.send("No File selected !");
+    res.end();
+  };
+})
